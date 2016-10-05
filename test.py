@@ -14,10 +14,6 @@ def scrape_page(company_news):
          'author':news.author, 'posted_on': news.posted_on,
          'created_at': news.created_at, 'updated_at': news.updated_at})
 
-# all urls for first page and url for next page
-# cb.more take company news and go to the next page
-# grab book, open book vs turn page
-
 company_news = company.news
 scrape_page(company_news)
 for i in xrange(5):

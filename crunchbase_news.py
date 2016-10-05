@@ -16,6 +16,7 @@ def create_table():
             updated_at int);
 '''
 
+
 conn = None
     try:
         # read the connection parameters
