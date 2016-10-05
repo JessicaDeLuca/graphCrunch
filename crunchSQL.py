@@ -3,25 +3,34 @@ from pycrunchbase import CrunchBase
 import psycopg2
 import sys
 
+# when you store a key in your bash_profile it automatically loads to memory
+# everytime you open your bash shell so you can call local variables from it
+
 API_KEY = os.environ["crunchbaseapi_ACCESS_KEY_ID"]
 cb = CrunchBase(API_KEY)
 
 con = psycopg2.connect("dbname='crunchbase_news' user='jessicadeluca'")
 
-# when you store a key in your bash_profile it automatically loads to memory
-# everytime you open your bash shell so you can call local variables from it
+company_names = ['netflix','facebook','linkedin']
+#company_names = ['netflix']#,'facebook','linkedin')
+#company_names = ['facebook','linkedin']
 
-# Here: create the postresSQL database with schema as
-# * CompanyId: string
-# * news_url: string
+scrape_companies(company_names)
 
-# build sql database
-# github = cb.organization('github')
 
+# pick company name from the list and run scrape company_method
 def scrape_companies(company_names):
         for company_name in company_names:
             scrape_company(company_name)
 
+# first page of news is a relationship type but all others are considered pages
+# find the company you want, make sure there are sufficient total urls to consider the company
+# store first page of news as a variable
+# store total count of news for company as a variable
+# scrape the first page (references the scrape page code)
+# enter for loop for second page until the last page
+# turn the page
+# scrape the page
 def scrape_company(company_name):
 
     print company_name
@@ -36,6 +45,13 @@ def scrape_company(company_name):
         page = cb.more(page)
         scrape_page(company.name, page)
 
+# scrape the individual page for a given company news items and create a list
+    # In [50]: facebook.news
+    # Out[50]: news Total: 216482 https://api.crunchbase.com/v/3/organizations/facebook/news
+
+# since the company_name is not page of the page code we are scraping we must
+# pass it in as varaible (since it was previously defined), so it is included
+# as an entry in our all_news list
 def scrape_page(company_name, company_news):
     all_news = []
     for news in company_news:
@@ -43,8 +59,10 @@ def scrape_page(company_name, company_news):
          'author':news.author, 'posted_on': news.posted_on,
          'created_at': news.created_at, 'updated_at': news.updated_at})
 
-    #print all_news
-    #print len(all_news)
+    # At the end of a page (100 entries), write those rows to previously created
+    # SQL table
+    # need to define variables to add to table as well as the values (in this case
+    # all values are strings)
 
     cur = con.cursor()
     cur.executemany("""
@@ -57,30 +75,5 @@ def scrape_page(company_name, company_news):
 #
 # all urls for first page and url for next page
 # cb.more take company news and go to the next page
-# grab book, open book vs turn page
-
-
-
-company_names = ['netflix','facebook','linkedin']
-#company_names = ['netflix']#,'facebook','linkedin')
-#company_names = ['facebook','linkedin']
-
-scrape_companies(company_names)
-
-# #  all_news_urls
-# for news in all_news:
-#     INSERT (company, title, news_url, uuid, author, posted_on,
-# created_at, updated_at) INTO <cb_news>
-#     db.insert(company, news_url)
-#
-#
-# CREATE TABLE crunchbase_news (
-#     CompanyID            string,
-#     CompanyName        string,
-#     newa_url
-# );
-
-
-
-
-# select all urls with more than one
+# grab book, open book vs turn pages of the book (need first page called
+# differently than all subsequent pages)
