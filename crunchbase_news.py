@@ -1,6 +1,7 @@
 import psycopg2
 from config import config
 
+# database is called crunchbase_news
 
 def create_table():
     commands = (

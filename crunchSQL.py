@@ -11,11 +11,8 @@ cb = CrunchBase(API_KEY)
 
 con = psycopg2.connect("dbname='crunchbase_news' user='jessicadeluca'")
 
-company_names = ['netflix','facebook','linkedin']
-#company_names = ['netflix']#,'facebook','linkedin')
+company_names = ['krux', 'salesforce']
 #company_names = ['facebook','linkedin']
-
-scrape_companies(company_names)
 
 
 # pick company name from the list and run scrape company_method
@@ -35,8 +32,8 @@ def scrape_company(company_name):
 
     print company_name
     company = cb.organization(company_name)
-    if company.news.total_items < 10000:
-        return
+    # if company.news.total_items < 10000:
+    #    return
     page = cb.more(company.news)
     number_of_pages = page.number_of_pages
     scrape_page(company.name, page)
@@ -73,7 +70,11 @@ def scrape_page(company_name, company_news):
         %(created_at)s, %(updated_at)s)""", all_news)
     con.commit()
 #
+
+scrape_companies(company_names)
 # all urls for first page and url for next page
 # cb.more take company news and go to the next page
 # grab book, open book vs turn pages of the book (need first page called
 # differently than all subsequent pages)
+
+# ran netflix and facebook until 1373, stopped....
