@@ -1,0 +1,49 @@
+
+"Count of article for a company"
+SELECT company, news_url, COUNT(news_url)
+FROM cb_news_deduped GROUP BY news_url, company
+HAVING (COUNT(news_url) > 1 );
+
+"Get list of articles for 1 company"
+SELECT company, title, news_url, uuid, posted_on
+FROM cb_news_deduped
+WHERE company='Krux'
+
+
+\copy (SELECT company, title, news_url, uuid, posted_on FROM cb_news_deduped  WHERE company='Krux') To /Users/jessicadeluca/gDS16/capstone/JAD-Capstone/data/Krux_articles.csv With CSV
+
+"Get urls with multiple companies mentioned - NOT WORKING"
+SELECT news_url, count(company)
+FROM cb_news_deduped
+GROUP BY news_url
+HAVING (COUNT(company)>2);
+
+\copy (SELECT news_url, count(company) FROM cb_news_deduped GROUP BY news_url HAVING (COUNT(company)>2)) To /Users/jessicadeluca/gDS16/capstone/JAD-Capstone/data/companyoverlap_articles.csv With CSV
+
+" Get list of common articles for 2 companies"
+   SELECT a.company, b.company, a.title, a.uuid, a.news_url, a.posted_on
+   FROM cb_news_final as a
+   INNER JOIN cb_news_final as b
+   ON a.uuid=b.uuid
+   GROUP BY a.company, b.company
+  WHERE a.company='Salesforce' OR b.company = 'Twitter'
+  AND a.company < b.company
+
+  \copy (SELECT a.company, b.company, a.title, a.uuid, a.news_url, a.posted_on FROM cb_news_final as a INNER JOIN cb_news_final as b ON a.uuid=b.uuid WHERE a.company='Salesforce' AND b.company = 'Twitter' AND a.company < b.company) To /Users/jessicadeluca/gDS16/capstone/JAD-Capstone/Articles/Articles_Salesforce_Twitter.csv With CSV
+
+"Count of number of articles for each company that I scraped"
+  \copy (SELECT company, count(uuid) FROM cb_news_final GROUP BY company) /Users/jessicadeluca/gDS16/capstone/JAD-Capstone/data/Articles_AllCompanies.csv With CSV
+
+"Count of edges for specific pair of companies or network for particular company"
+"Exclude the HAVING clause for total edge list of network"
+  SELECT a.company, b.company, count(a.uuid)
+  FROM cb_news_3 as a
+  INNER JOIN cb_news_3 as b
+  ON a.uuid=b.uuid
+  AND a.company < b.company
+  GROUP BY a.company, b.company
+  HAVING a.company='Twitter' OR b.company = 'Twitter'
+
+
+"Create edges for each pair of companies"
+\copy (  SELECT a.company, b.company, count(a.uuid) FROM cb_news_final as a INNER JOIN cb_news_final as b ON a.uuid=b.uuid AND a.company < b.company GROUP BY a.company, b.company) To /Users/jessicadeluca/gDS16/capstone/JAD-Capstone/data/edges_weighted_final.csv With CSV
